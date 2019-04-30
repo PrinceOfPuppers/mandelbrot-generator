@@ -3,8 +3,10 @@ from multiprocessing import Pool
 import matplotlib.pyplot as plt
 from config import config
 #these must be defined on main scope due to the inability to pass multiple inputs in pool.map()
-xVals=linspace(-2,1,config.resolution[0])
-yVals=linspace(-3/2,3/2,config.resolution[1])
+xLowerBound,xUpperBound=config.xBounds[0],config.xBounds[1]
+yLowerBound,yUpperBound=config.yBounds[0],config.yBounds[1]
+xVals=linspace(xLowerBound,xUpperBound,config.resolution[0])
+yVals=linspace(yLowerBound,yUpperBound,config.resolution[1])
 
 def iterate(a,z):
     nextA=(a+z)**2
@@ -60,7 +62,9 @@ def populateImageArray(imageArray,resolution,iterations,threshold):
     #x and y value are orginized from least to greatest 
     if config.enableMultiProcessing:
         p=Pool(config.coresAllocated)
-        imageArray=array(p.map(calculateImageArrayColumn,enumerate(imageArray)))
+        imageArray=p.map(calculateImageArrayColumn,enumerate(imageArray),chunksize = int(resolution[0]/(8*config.coresAllocated)+1))
+        p.close()
+        p.join()
     else:
         for xIndex in range(0,resolution[0]):
             print(xIndex)
