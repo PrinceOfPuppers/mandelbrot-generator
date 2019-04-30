@@ -1,6 +1,6 @@
 from numpy import linspace,zeros
 import matplotlib.pyplot as plt
-import pickle
+from config import config
 
 def iterate(a,z):
     nextA=(a+z)**2
@@ -32,8 +32,8 @@ def didConvergeAtZWithRate(z,iterations,threshold):
 def populateBoolArray(boolArray,resolution,xVals,yVals,iterations,threshold):
     #x and y value are orginized from least to greatest 
     for xIndex in range(0,resolution[0]):
+        print(xIndex)
         for yIndex in range(0,resolution[1]):
-            print(xIndex,yIndex)
             z=xVals[xIndex]+(yVals[yIndex])*1j
             #note, array indices are flipped because arrays are silly
             boolArray[yIndex,xIndex]=didConvergeAtZ(z,iterations,threshold)
@@ -42,8 +42,8 @@ def populateBoolArray(boolArray,resolution,xVals,yVals,iterations,threshold):
 def populateImageArray(imageArray,resolution,xVals,yVals,iterations,threshold):
     #x and y value are orginized from least to greatest 
     for xIndex in range(0,resolution[0]):
+        print(xIndex)
         for yIndex in range(0,resolution[1]):
-            print(xIndex,yIndex)
             z=xVals[xIndex]+(yVals[yIndex])*1j
             #note, array indices are flipped because arrays are silly
             #also note each entry of the image array is 1/(the number of iterations until divergence)
@@ -79,13 +79,15 @@ def createColorMandelbrot(resolution,iterations,threshold):
     #pickle.dump(fig, open('mandelbrot','wb'))
     plt.show()
 
+def main():
+    if config.type=='bool':
+        createBoolMandelbrot(config.resolution,config.iterations,config.threshold)
+    
+    elif config.type=='color':
+        createColorMandelbrot(config.resolution,config.iterations,config.threshold)
+    
+    else:
+        print('invalid mandelbrot type')
 
-resolution=(10000,10000)
-#iterations and resolution are best considered togeather ie 5000x5000 needs 
-#an iteration number greather than 30
-iterations=60
-#the treshold chosen from a reccomendation on wikipedia
-threshold=4
-
-#createBoolMandelbrot(resolution,iterations,threshold)
-createColorMandelbrot(resolution,iterations,threshold)
+if __name__ == "__main__":
+    main()
