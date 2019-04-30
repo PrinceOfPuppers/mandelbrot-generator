@@ -1,6 +1,10 @@
-from numpy import linspace,zeros
+from numpy import linspace,zeros,array
+from multiprocessing import Pool
 import matplotlib.pyplot as plt
 from config import config
+#these must be defined on main scope due to the inability to pass multiple inputs in pool.map()
+xVals=linspace(-2,1,config.resolution[0])
+yVals=linspace(-3/2,3/2,config.resolution[1])
 
 def iterate(a,z):
     nextA=(a+z)**2
@@ -29,7 +33,20 @@ def didConvergeAtZWithRate(z,iterations,threshold):
             return(i)
     return(0)
 
-def populateBoolArray(boolArray,resolution,xVals,yVals,iterations,threshold):
+#used by pool.map() for multiprocessing
+def calculateImageArrayColumn(tup):
+    iterations=config.iterations
+    threshold=config.threshold
+    yIndex=tup[0]
+    imageColumn=tup[1]
+    print(yIndex)
+    for xIndex in range(0,config.resolution[1]):
+        z=xVals[xIndex]+yVals[yIndex]*1j
+        iterationsTillDivergence=didConvergeAtZWithRate(z,iterations,threshold)
+        imageColumn[xIndex]=iterationsTillDivergence/iterations
+    return(imageColumn)
+
+def populateBoolArray(boolArray,resolution,iterations,threshold):
     #x and y value are orginized from least to greatest 
     for xIndex in range(0,resolution[0]):
         print(xIndex)
@@ -39,24 +56,25 @@ def populateBoolArray(boolArray,resolution,xVals,yVals,iterations,threshold):
             boolArray[yIndex,xIndex]=didConvergeAtZ(z,iterations,threshold)
     return(boolArray)
 
-def populateImageArray(imageArray,resolution,xVals,yVals,iterations,threshold):
+def populateImageArray(imageArray,resolution,iterations,threshold):
     #x and y value are orginized from least to greatest 
-    for xIndex in range(0,resolution[0]):
-        print(xIndex)
-        for yIndex in range(0,resolution[1]):
-            z=xVals[xIndex]+(yVals[yIndex])*1j
-            #note, array indices are flipped because arrays are silly
-            #also note each entry of the image array is 1/(the number of iterations until divergence)
-            iterationsTillDivergence=didConvergeAtZWithRate(z,iterations,threshold)
-            imageArray[yIndex,xIndex]=iterationsTillDivergence/iterations
+    if config.enableMultiProcessing:
+        p=Pool(config.coresAllocated)
+        imageArray=array(p.map(calculateImageArrayColumn,enumerate(imageArray)))
+    else:
+        for xIndex in range(0,resolution[0]):
+            print(xIndex)
+            for yIndex in range(0,resolution[1]):
+                z=xVals[xIndex]+(yVals[yIndex])*1j
+                #note, array indices are flipped because arrays are silly
+                #also note each entry of the image array is 1/(the number of iterations until divergence)
+                iterationsTillDivergence=didConvergeAtZWithRate(z,iterations,threshold)
+                imageArray[yIndex,xIndex]=iterationsTillDivergence/iterations
     return(imageArray)
 
 def createBoolMandelbrot(resolution,iterations,threshold):
-    xVals=linspace(-2,1,resolution[0])
-    yVals=linspace(-3/2,3/2,resolution[1])
-
     boolArray=zeros((resolution[0], resolution[1]), dtype=bool)
-    boolArray=populateBoolArray(boolArray,resolution,xVals,yVals,iterations,threshold)
+    boolArray=populateBoolArray(boolArray,resolution,iterations,threshold)
 
     fig=plt.figure()
     ax=fig.add_subplot(111)
@@ -65,11 +83,8 @@ def createBoolMandelbrot(resolution,iterations,threshold):
     plt.show()
 
 def createColorMandelbrot(resolution,iterations,threshold):
-    xVals=linspace(-2,1,resolution[0])
-    yVals=linspace(-3/2,3/2,resolution[1])
-
     imageArray=zeros((resolution[0], resolution[1]), dtype=float)
-    imageArray=populateImageArray(imageArray,resolution,xVals,yVals,iterations,threshold)
+    imageArray=populateImageArray(imageArray,resolution,iterations,threshold)
 
     fig=plt.figure()
     ax=fig.add_subplot(111)
