@@ -93,8 +93,10 @@ def createColorMandelbrot(config,state):
     plt.xlabel("Re")
     plt.ylabel("Im")
     plt.title('Right Click To Zoom')
+
     manager = plt.get_current_fig_manager()
-    manager.full_screen_toggle()
+    if config.enableFullScreen:
+        manager.full_screen_toggle()
     
     plt.show()
 

@@ -8,6 +8,8 @@ class Config:
         self.iterations=80
         self.threshold=20
 
+        self.enableFullScreen=True
+
         #mutiProcessing only supported for color mandelbrot
         self.enableMultiProcessing=True
 
