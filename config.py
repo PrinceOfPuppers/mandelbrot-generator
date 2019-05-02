@@ -1,16 +1,18 @@
 from numpy import linspace
-class config:
+from multiprocessing import cpu_count
+class Config:
     def __init__(self):
-        #type is either color or bool
-        resolution=(500,500)
+        self.resolution=(800,800)
         #iterations and resolution are best considered togeather ie 5000x5000 needs 
         #an iteration number greather than 30
-        self.iterations=100
+        self.iterations=80
         self.threshold=20
 
         #mutiProcessing only supported for color mandelbrot
         self.enableMultiProcessing=True
-        self.coresAllocated=8
+
+        #the number of processes spawned is determined by cpu count, change if you wish
+        self.processesUsed=cpu_count()
 
         #starting screen (yUpperBound is calculated to keep it square)
         xLowerBound=-2
@@ -22,9 +24,6 @@ class config:
         self.newWindowSize=1/2
 
         #non adjustable
-        self.resolution=resolution
         yUpperBound=yLowerBound+(xUpperBound-xLowerBound)
-        self.xBounds=(xLowerBound,xUpperBound)
-        self.yBounds=(yLowerBound,yUpperBound)
-        self.xVals=linspace(xLowerBound,xUpperBound,resolution[0])
-        self.yVals=linspace(yLowerBound,yUpperBound,resolution[1])
+        self.xInitalBounds=(xLowerBound,xUpperBound)
+        self.yInitalBounds=(yLowerBound,yUpperBound)
