@@ -1,16 +1,7 @@
 from numpy import linspace
 class State:
     def __init__(self):
-        #starting screen (yUpperBound is calculated to keep it square)
-        xLowerBound=-2
-        xUpperBound=1
-
-        yLowerBound=-3/2
-
-        #non adjustable
-        yUpperBound=yLowerBound+(xUpperBound-xLowerBound)
-        self.xBounds=(xLowerBound,xUpperBound)
-        self.yBounds=(yLowerBound,yUpperBound)
+        pass
     
     def getConfigData(self,config):
         resolution=config.resolution
@@ -22,6 +13,9 @@ class State:
         
         xLowerBound,xUpperBound=config.xInitalBounds[0],config.xInitalBounds[1]
         yLowerBound,yUpperBound=config.yInitalBounds[0],config.yInitalBounds[1]
+
+        self.xBounds=(xLowerBound,xUpperBound)
+        self.yBounds=(yLowerBound,yUpperBound)
 
         self.xVals=linspace(xLowerBound,xUpperBound,resolution[0])
         self.yVals=linspace(yLowerBound,yUpperBound,resolution[1])
